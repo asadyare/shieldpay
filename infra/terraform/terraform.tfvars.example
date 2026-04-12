@@ -1,0 +1,16 @@
+# Example — copy to terraform.tfvars and adjust.
+aws_region                  = "us-east-1"
+project                     = "shieldpay"
+environment                 = "prod"
+github_org                  = "asadyare"
+github_repo                 = "shieldpay"
+create_github_oidc_provider = false
+
+# Optional: restrict OIDC trust to main branch
+# github_oidc_subjects = ["repo:asadyare/shieldpay:ref:refs/heads/main"]
+
+# If lookup by URL is wrong for your account (rare), set ARN explicitly:
+# github_oidc_provider_arn = "arn:aws:iam::ACCOUNT_ID:oidc-provider/token.actions.githubusercontent.com"
+
+# Create a new OIDC provider in this account instead (not typical if you use GitHub Actions already):
+# create_github_oidc_provider = true

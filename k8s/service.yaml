@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: shieldpay
+  namespace: shieldpay
+  labels:
+    app.kubernetes.io/name: shieldpay
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: external
+    service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
+    service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: shieldpay
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP

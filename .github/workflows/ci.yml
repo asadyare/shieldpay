@@ -1,0 +1,57 @@
+# Secure CI for ShieldPay (npm workspaces: client + server)
+# Requires: package-lock.json committed; Node 22.x on runners matches server engines.
+name: CI
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master, develop]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-verify:
+    name: Install, audit, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Harden runner (network egress audit)
+        uses: step-security/harden-runner@v2.13.2
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies (immutable lockfile)
+        run: npm ci
+
+      - name: Supply chain — npm audit (production)
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Build client and server workspace build scripts
+        run: npm run build
+
+  dependency-review:
+    name: Dependency review (PR)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+          # Optional: add deny-licenses (e.g. GPL-3.0, AGPL-3.0) when policy requires it.

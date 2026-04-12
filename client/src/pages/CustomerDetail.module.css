@@ -1,0 +1,87 @@
+.back {
+  color: var(--muted);
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--accent);
+}
+
+.grid {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: minmax(260px, 340px) 1fr;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.wide {
+  min-width: 0;
+}
+
+.h2 {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.5rem 1.25rem;
+  font-size: 0.9rem;
+}
+
+.dl dt {
+  color: var(--muted);
+  margin: 0;
+}
+
+.dl dd {
+  margin: 0;
+}
+
+.em {
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.tableWrap {
+  overflow-x: auto;
+  margin: 0 -1.35rem -1.25rem;
+  padding: 0 1.35rem 1.25rem;
+}
+
+.mono {
+  font-family: ui-monospace, monospace;
+  font-size: 0.82rem;
+}
+
+.desc {
+  max-width: 220px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 1.5rem !important;
+}
+
+.error {
+  color: var(--danger);
+  margin: 0 0 1rem;
+}

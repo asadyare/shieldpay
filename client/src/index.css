@@ -1,0 +1,89 @@
+:root {
+  /* Auth screen (matches ShieldPay demo reference) */
+  --auth-page-bg: #0f0f0f;
+  --auth-card-bg: #242036;
+  --auth-card-border: rgba(255, 255, 255, 0.06);
+  --auth-input-bg: #1a1628;
+  --auth-input-border: rgba(255, 255, 255, 0.14);
+  --auth-input-focus: #3ddfcb;
+  --auth-input-focus-ring: rgba(61, 223, 203, 0.2);
+  --auth-cta-green: #3fe27a;
+  --auth-link-teal: #3ddfcb;
+
+  /* App shell */
+  --bg: #0f0f0f;
+  --surface: #161616;
+  --surface-hover: #1f1f1f;
+  --border: #2c2c2e;
+  --text: #f5f5f7;
+  --muted: #8e8e93;
+  --accent: var(--auth-link-teal);
+  --accent-soft: rgba(61, 223, 203, 0.12);
+  --nav-active-bg: rgba(63, 226, 122, 0.12);
+  --nav-active-text: #3fe27a;
+  --success: #3fe27a;
+  --warning: #ff9f0a;
+  --danger: #ff453a;
+  --radius: 10px;
+  --font: "DM Sans", system-ui, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+th {
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}

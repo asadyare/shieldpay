@@ -1,0 +1,82 @@
+# Build image, scan, push to ECR, deploy to EKS (OIDC — no static AWS keys).
+# Prerequisites: apply infra/terraform; set GitHub repository variables (see workflow comments).
+name: Deploy AWS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+  EKS_CLUSTER_NAME: ${{ vars.EKS_CLUSTER_NAME }}
+  ECR_REPOSITORY_NAME: ${{ vars.ECR_REPOSITORY_NAME }}
+  K8S_NAMESPACE: shieldpay
+
+jobs:
+  build-scan-push-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      # Required repo Variables (Settings → Secrets and variables → Actions → Variables):
+      #   AWS_REGION            optional; defaults to us-east-1 if unset
+      #   AWS_DEPLOY_ROLE_ARN   from terraform output github_actions_role_arn
+      #   EKS_CLUSTER_NAME      from terraform output eks_cluster_name
+      #   ECR_REPOSITORY_NAME   repository name only (e.g. shieldpay-prod-app), not full URL
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set image URI
+        id: img
+        run: |
+          REG="${{ steps.ecr.outputs.registry }}"
+          REPO="${{ env.ECR_REPOSITORY_NAME }}"
+          TAG="${GITHUB_SHA}"
+          echo "uri=${REG}/${REPO}:${TAG}" >> "$GITHUB_OUTPUT"
+          echo "IMAGE_URI=${REG}/${REPO}:${TAG}" >> "$GITHUB_ENV"
+
+      - name: Build image
+        run: docker build -t "${IMAGE_URI}" .
+
+      - name: Scan image with Trivy (fail on CRITICAL)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: image
+          image-ref: "${{ env.IMAGE_URI }}"
+          exit-code: "1"
+          ignore-unfixed: true
+          severity: "CRITICAL"
+
+      - name: Push image to ECR
+        run: docker push "${IMAGE_URI}"
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: "v1.31.0"
+
+      - name: Configure kubectl
+        run: aws eks update-kubeconfig --name "${EKS_CLUSTER_NAME}" --region "${AWS_REGION}"
+
+      - name: Apply Kubernetes manifests
+        run: |
+          set -euo pipefail
+          kubectl apply -f k8s/namespace.yaml
+          kubectl apply -f k8s/storageclass-gp3.yaml
+          kubectl apply -f k8s/pvc.yaml
+          kubectl apply -f k8s/service.yaml
+          sed "s|__SHIELDPAY_IMAGE__|${IMAGE_URI}|g" k8s/deployment.yaml | kubectl apply -f -
+          kubectl rollout status deployment/shieldpay -n "${K8S_NAMESPACE}" --timeout=300s

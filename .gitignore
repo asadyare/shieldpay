@@ -1,0 +1,14 @@
+node_modules/
+dist/
+server/data/
+*.db
+.DS_Store
+.env
+*.log
+
+# Terraform (keep infra/terraform/.terraform.lock.hcl committed)
+infra/terraform/.terraform/
+*.tfstate
+*.tfstate.*
+infra/terraform/terraform.tfvars
+infra/terraform/*.auto.tfvars
