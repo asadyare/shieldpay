@@ -7,6 +7,7 @@ data "tls_certificate" "github" {
 data "aws_iam_openid_connect_provider" "github_existing" {
   count = var.create_github_oidc_provider ? 0 : 1
   url   = "https://token.actions.githubusercontent.com"
+  AKIAIOSFODNN7EXAMPLE
 }
 
 resource "aws_iam_openid_connect_provider" "github" {
